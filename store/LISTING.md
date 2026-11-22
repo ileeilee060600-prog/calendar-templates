@@ -49,8 +49,8 @@ Calendar Templates adds reusable event templates and a fast day planner right in
 
 Calendar Templates is an independent extension and is not affiliated with Google. Google Calendar is a trademark of Google LLC.
 
-**Screenshots (1280×800):** `store/screenshot-1.png`, `store/screenshot-2.png`, `store/screenshot-3.png`
-**Small promo tile (440×280):** `store/promo-small.png`
+**Screenshots (1280×800), in this order:** `store/screenshot-0-hero.png`, `store/screenshot-1.png`, `store/screenshot-2.png`, `store/screenshot-3.png`
+**Small promo tile (440×280):** `store/promo-small-hero.png` (or `store/promo-small.png`)
 **Store icon:** `icons/128.png`
 **Official URL / Homepage:** https://ileeilee060600-prog.github.io/calendar-templates/
 **Support URL:** https://github.com/ileeilee060600-prog/calendar-templates/issues
