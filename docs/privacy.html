@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Privacy Policy · Calendar Templates</title>
+<link rel="icon" href="icon.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body><main class="doc">
+<a class="back" href="./">← Calendar Templates</a>
+<h1>Privacy Policy</h1>
+<p class="muted">Effective November 22, 2026</p>
+
+<p>Calendar Templates is a Chrome extension that adds event templates and a day planner to Google Calendar. This policy explains what data it uses and why. In short: your data stays between your browser and Google. The extension has no server of its own, no analytics and no ads.</p>
+
+<h2>Data the extension accesses</h2>
+<p>When you connect your Google account, the extension asks Google for two permissions:</p>
+<ul>
+  <li><b>See and edit events on your calendars</b> (<code>calendar.events</code>). Used to show the events of the day you are planning, find your free time, add the blocks you choose, move or resize the blocks you drag, delete a block when you press Undo or remove, and list your recent event titles when you choose “From a recent event”.</li>
+  <li><b>See the list of your calendars</b> (<code>calendar.calendarlist.readonly</code>). Used to know which calendars you show, their colors, and which ones you can add events to.</li>
+</ul>
+<p>The extension reads only what these features need: event titles, times, colors, your own response status, and (for “From a recent event”) description and location. It never reads email, contacts or any other Google data.</p>
+
+<h2>Where data is kept</h2>
+<ul>
+  <li><b>Templates and preferences</b> are stored with <code>chrome.storage.sync</code>, so Chrome can sync them between your own browsers through your Google account. You can export or delete them in the extension’s options.</li>
+  <li><b>The sign-in access token</b> is kept in <code>chrome.storage.session</code>, in memory only, and is gone when the browser closes. It expires after about an hour.</li>
+  <li><b>Your Google account address</b> (taken from your primary calendar) is stored on your computer with <code>chrome.storage.local</code>, only to tell Google which account to renew the sign-in for. It is deleted when you press Disconnect.</li>
+  <li><b>Calendar events</b> are held in memory while the planner is open, to draw the day. They are not written to disk by the extension.</li>
+</ul>
+
+<h2>Sharing</h2>
+<p>The extension sends data only to Google (Google Calendar API and Google sign-in) to do what you ask. It does not sell data, does not share it with anyone else, does not use it for advertising, and does not use it to determine creditworthiness or for lending. No person reads your data.</p>
+<p>Calendar Templates’ use and transfer of information received from Google APIs adheres to the <a href="https://developers.google.com/terms/api-services-user-data-policy">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
+<h2>Your control</h2>
+<ul>
+  <li>Press <b>Disconnect</b> in the extension’s options to sign out and revoke its access.</li>
+  <li>You can also remove access at any time at <a href="https://myaccount.google.com/permissions">myaccount.google.com/permissions</a>.</li>
+  <li>Uninstalling the extension deletes everything it stored on your computer.</li>
+</ul>
+
+<h2>Changes and contact</h2>
+<p>If this policy changes, the new version will be posted on this page with a new date. Questions: <a href="https://github.com/ileeilee060600-prog/calendar-templates/issues">open an issue on GitHub</a>.</p>
+</main></body></html>
