@@ -266,7 +266,11 @@ svg{flex:none}
 .blk.narrow.short small{display:none}
 .blk.can{cursor:grab}
 .blk.pending{opacity:.6}
-.ghost{z-index:4;cursor:grab;box-shadow:var(--elev);opacity:.92}
+.ghost{z-index:4;cursor:grab;box-shadow:var(--elev);opacity:.7}
+.ghost small::after{content:" · preview"}
+.ghost:hover{opacity:.9}
+.addb{position:absolute;top:2px;right:2px;height:20px;padding:0 10px;display:none;align-items:center;border-radius:10px;background:var(--panel);color:var(--on);font:500 11px "Google Sans Text",Roboto,Arial,sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.ghost:hover .addb{display:flex}.addb:hover{background:var(--primary);color:var(--onprimary)}
 .ghost.range{opacity:.85}
 .blk.dragging{animation:none;cursor:grabbing;z-index:6;box-shadow:0 4px 4px rgba(0,0,0,.3),0 8px 12px 6px rgba(0,0,0,.15);opacity:1;will-change:transform}
 .blk.settling{z-index:6;transition:transform .2s cubic-bezier(.05,.7,.1,1),top .2s cubic-bezier(.05,.7,.1,1),height .2s cubic-bezier(.05,.7,.1,1),box-shadow .2s}
@@ -600,6 +604,7 @@ select.in{appearance:none;cursor:pointer}
       b.style.left = 'calc(' + GUT + 'px + (100% - ' + (GUT + 6) + 'px) * ' + o.c + ' / ' + o.n + ')';
       b.style.width = 'calc((100% - ' + (GUT + 6) + 'px) / ' + o.n + ' - 2px)';
     }
+    if (o.add) b.append(h('button', { class: 'addb' }, 'Add'));
     if (o.x) b.append(h('button', { class: 'x', title: 'Remove this block' }, icon('close')));
     if (o.rz) b.append(h('div', { class: 'rz' }));
     if (o.tip) b.title = o.tip;
@@ -646,7 +651,7 @@ select.in{appearance:none;cursor:pointer}
     R.ghost = null;
     let ghostTop = null;
     if (p) {
-      R.ghost = block(p.start, p.end, colorOf(p.colorId, calById(p.calendarId)), p.title || 'New block', { cls: 'ghost', rz: true, tip: 'Drag to choose the time · drag the bottom edge to change the length' });
+      R.ghost = block(p.start, p.end, colorOf(p.colorId, calById(p.calendarId)), p.title || 'New block', { cls: 'ghost', rz: true, add: true, tip: 'Preview: where this block will go. Drag it to choose the time, or press Add / Enter to put it in your calendar' });
       ghostTop = parseFloat(R.ghost.style.top);
       grid.append(R.ghost);
     }
@@ -712,6 +717,7 @@ select.in{appearance:none;cursor:pointer}
     if (e.button !== 0 || !R.grid || S.drag) return;
     const bEl = e.target.closest('.blk');
     if (bEl && e.target.closest('.x')) { e.preventDefault(); removeEvent(BLK.get(bEl)); return; }
+    if (bEl && e.target.closest('.addb')) { e.preventDefault(); addBlock(currentItem(), false); return; }
     if (!e.target.closest('.grid')) return;
     e.preventDefault();
     const t = timeAt(e.clientY);
