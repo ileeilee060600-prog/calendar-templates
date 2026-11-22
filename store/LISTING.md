@@ -101,7 +101,7 @@ Lets users create reusable event templates and add them to their Google Calendar
 ### Clients → the Web application client
 Authorized redirect URIs must contain one line per extension ID:
 - `https://ampgacndpcfojobbfbaembfnmjfdaekk.chromiumapp.org/` (unpacked dev copy, already there)
-- `https://<STORE-ITEM-ID>.chromiumapp.org/` (add after the first upload; the item ID is in the dashboard URL)
+- `https://fgeknhmdlnljkggnhmnnpjbckpnedlad.chromiumapp.org/` (Chrome Web Store item fgeknhmdlnljkggnhmnnpjbckpnedlad, added)
 
 ### Audience → Publish app
 After Branding is filled. In production but unverified: up to 100 users, each sees "Google hasn't verified this app" once.
