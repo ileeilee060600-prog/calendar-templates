@@ -990,6 +990,65 @@ select.in{appearance:none;cursor:pointer}
   }
 
   // Removing a block can be undone: Undo recreates it from the data we hold about it.
+  // ---------------------------------------------------------------- quick add (planner closed)
+  // Alt+1…9 on Calendar adds the Nth template to the next free slot without opening anything.
+  let snackEl = null, snackTimer = null, quickQ = Promise.resolve();
+  function snack(text, undo, bad) {
+    if (!snackEl) {
+      const el = document.createElement('div');
+      el.id = 'ct-snack';
+      const sr = el.attachShadow({ mode: 'open' });
+      const css = ':host{all:initial}.sn{position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:2147483600;display:flex;align-items:center;gap:12px;min-height:48px;max-width:min(560px,92vw);padding:6px 8px 6px 16px;background:#303030;color:#f2f2f2;border-radius:4px;font:14px/1.4 "Google Sans Text",Roboto,Arial,sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.4),0 4px 8px 3px rgba(0,0,0,.2);animation:in .25s cubic-bezier(.05,.7,.1,1);-webkit-user-select:none;user-select:none}.sn.bad{background:#8c1d18}.sn span{overflow:hidden;text-overflow:ellipsis}.sn button{font:500 14px "Google Sans Text",Roboto,Arial,sans-serif;color:#a8c7fa;background:none;border:0;height:36px;padding:0 12px;border-radius:18px;cursor:pointer}.sn button:hover{background:rgba(255,255,255,.1)}@keyframes in{from{opacity:0;transform:translateX(-50%) translateY(10px)}}';
+      try { const sh = new CSSStyleSheet(); sh.replaceSync(css); sr.adoptedStyleSheets = [sh]; } catch (e) { const st = document.createElement('style'); st.textContent = css; sr.append(st); }
+      snackEl = { host: el, root: sr };
+    }
+    snackEl.root.querySelectorAll('.sn').forEach(n => n.remove());
+    const box = h('div', { class: 'sn' + (bad ? ' bad' : '') }, h('span', {}, text),
+      undo ? h('button', { onclick: () => { clearTimeout(snackTimer); snackEl.host.remove(); undo(); } }, 'Undo') : null);
+    snackEl.root.append(box);
+    if (!snackEl.host.isConnected) document.documentElement.append(snackEl.host);
+    clearTimeout(snackTimer);
+    snackTimer = setTimeout(() => snackEl.host.remove(), bad ? 7000 : 5000);
+  }
+
+  function quickAdd(n) { quickQ = quickQ.then(() => doQuick(n)).catch(() => {}); }
+
+  async function doQuick(n) {
+    let tpls = [];
+    try { tpls = await CT.store.getTemplates(); } catch (e) { /* none */ }
+    const tpl = tpls[n - 1];
+    if (!tpl) { snack('No template ' + n + ' yet. Press Alt+T and choose New template.', null, true); return; }
+    let day = viewDay();
+    const now = new Date();
+    if (S.settings.eveningTomorrow && sameDay(day, now) && now.getHours() >= 18) day = addDays(day, 1);
+    const key = dayKey(day), title = tpl.title || tpl.name;
+    let c = S.cache.get(key);
+    snack('Adding “' + title + '”…');
+    if (!c || Date.now() - c.t > 60000) {
+      try { const r = await fetchDay(day); c = { events: r.events, cals: r.calendars, t: Date.now() }; S.cache.set(key, c); }
+      catch (e) { return quickFail(e); }
+    }
+    S.day = day; S.events = c.events; S.cals = c.cals; S.query = ''; S.pin = null; S.pinDur = null; S.auth = 'ok';
+    const p = plan({ type: 'tpl', tpl });
+    const ev = { id: null, cal: p.calendarId, title: p.title, start: p.start, end: p.end, allDay: false, colorId: p.colorId, free: false, mine: true, pending: true, canEdit: true,
+      description: p.event.description, location: p.event.location, reminders: (tpl.reminders || []).slice() };
+    c.events.push(ev);
+    const when = sameDay(day, now) ? '' : ' · ' + day.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
+    try {
+      const r = await send({ type: 'create', calendarId: p.calendarId, event: p.event });
+      ev.id = r.id; ev.pending = false; S.mineIds.add(r.id); nudgeRefresh();
+      snack('Added “' + p.title + '”  ' + fmtTime(p.start) + ' – ' + fmtTime(p.end) + when, async () => {
+        try { await send({ type: 'remove', calendarId: p.calendarId, id: r.id }); c.events = c.events.filter(x => x !== ev); S.cache.set(key, c); nudgeRefresh(); snack('Removed “' + p.title + '”'); }
+        catch (e) { snack('Could not undo: ' + (e.error || ''), null, true); }
+      });
+    } catch (e) { c.events = c.events.filter(x => x !== ev); quickFail(e); }
+  }
+
+  function quickFail(e) {
+    if (e.code === 'NO_CLIENT' || e.code === 'AUTH') { snack('Connect Google Calendar to add blocks with shortcuts.', null, true); openPalette(); return; }
+    snack('Could not add: ' + (e.error || 'unknown error'), null, true);
+  }
+
   async function removeEvent(ev, quiet) {
     if (!ev) return;
     S.events = S.events.filter(x => x !== ev); commit();
@@ -1151,7 +1210,12 @@ select.in{appearance:none;cursor:pointer}
       return;
     }
     if (isHot(e)) { e.preventDefault(); e.stopImmediatePropagation(); toggle(); return; }
-    if (!S.open) return;
+    if (!S.open) {
+      if (S.settings.quickKeys !== false && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && /^Digit[1-9]$/.test(e.code) && !e.repeat) {
+        e.preventDefault(); e.stopImmediatePropagation(); quickAdd(+e.code.slice(5));
+      }
+      return;
+    }
     e.stopImmediatePropagation();   // Calendar's single-key shortcuts must never see typing in the planner
     if (e.isComposing) return;
     handleKey(e);

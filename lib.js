@@ -25,7 +25,8 @@
     dayStart: '08:00',
     dayEnd: '22:00',
     keepOpen: true,          // Enter adds and stays open so you can chain blocks
-    eveningTomorrow: true    // after 18:00 the planner opens on tomorrow
+    eveningTomorrow: true,   // after 18:00 the planner opens on tomorrow
+    quickKeys: true         // Alt+1..9 add the Nth template without opening the planner
   };
 
   // [minutes before start] — 0 is "At time of event".

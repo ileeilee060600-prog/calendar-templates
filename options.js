@@ -20,7 +20,7 @@ async function init() {
   $('privacy').href = CT_CONFIG.privacy;
   $('ver').textContent = 'v' + chrome.runtime.getManifest().version;
   $('dayStart').value = s.dayStart; $('dayEnd').value = s.dayEnd;
-  $('keepOpen').checked = s.keepOpen; $('eveningTomorrow').checked = s.eveningTomorrow;
+  $('keepOpen').checked = s.keepOpen; $('quickKeys').checked = s.quickKeys !== false; $('eveningTomorrow').checked = s.eveningTomorrow;
   $('hk').textContent = $('hkLead').textContent = label(s.hotkey);
   const r = await send({ type: 'calendars' });
   r.ok ? setStatus(true, 'connected') : setStatus(false, r.code === 'AUTH' ? 'not connected yet' : (r.error || 'error'));
@@ -39,7 +39,7 @@ $('connect').onclick = async () => {
 $('disconnect').onclick = async () => { await send({ type: 'disconnect' }); setStatus(false, 'disconnected'); };
 
 for (const id of ['dayStart', 'dayEnd']) $(id).onchange = e => e.target.value && store.setSettings({ [id]: e.target.value });
-for (const id of ['keepOpen', 'eveningTomorrow']) $(id).onchange = e => store.setSettings({ [id]: e.target.checked });
+for (const id of ['keepOpen', 'quickKeys', 'eveningTomorrow']) $(id).onchange = e => store.setSettings({ [id]: e.target.checked });
 
 $('hk').onclick = () => {
   const b = $('hk'); b.textContent = 'Press keys…';

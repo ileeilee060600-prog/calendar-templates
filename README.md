@@ -14,6 +14,7 @@ A day planner for Google Calendar on desktop. Press **Alt+T** on calendar.google
 - Tests: `node test/lib.test.js`.
 
 ## Use
+- **Quick add, planner closed:** on Google Calendar press **Alt+1…9** and the 1st…9th template goes straight into the next free slot of the viewed day (after 18:00: tomorrow), with a small bar at the bottom and Undo. Presses in a row stack up without overlapping. Switch off in options.
 - **Type to filter**, ↑↓ to choose, **Enter** adds the block and keeps the planner open, so you can chain a whole day. **Shift+Enter** adds and closes (flip it in options). **Alt+1–9** adds the Nth template directly.
 - Blocks go into the **next free slot** of the viewed day, so they never overlap. Override inline: `deep work 14:30 45m`, `gym 3pm 1h30`, `call @9 20m`.
 - **The whole day fits without scrolling:** the timeline scales your day (start to end in options, plus anything scheduled) to the panel height. Only an unusually long day falls back to scrolling.
