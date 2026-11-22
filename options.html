@@ -25,6 +25,13 @@ input[type=time]{border:0;border-radius:10px;background:var(--field);color:var(-
 #status{font-weight:500}.ok{color:var(--ok)}.bad{color:var(--bad)}
 .hint{color:var(--muted);font-size:13px}
 .hk{font:500 14px ui-monospace,Consolas,monospace;background:var(--field);border-radius:10px;padding:8px 14px;min-width:90px;text-align:center}
+.scrow2{display:flex;align-items:center;gap:12px;margin:8px 0}
+.scrow2 .dot{width:12px;height:12px;border-radius:50%;flex:none}
+.scrow2 .nm{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500}
+.scrow2 .er{color:var(--bad);font-size:12.5px}
+button.rec{background:var(--field);color:var(--muted);min-width:150px}
+button.rec.set{background:var(--tonal);color:var(--ontonal)}
+button.rec.on{background:var(--accent);color:var(--bg)}
 details{margin-top:16px}
 summary{cursor:pointer;color:var(--muted);font-size:13px}
 details[open] summary{margin-bottom:10px}
@@ -59,6 +66,12 @@ footer{color:var(--muted);font-size:12px;text-align:center;margin-top:20px}
   <label class="c"><input type="checkbox" id="keepOpen"> Enter adds the block and keeps the planner open (Shift+Enter adds and closes)</label>
   <label class="c"><input type="checkbox" id="quickKeys"> Alt+1…9 on Google Calendar add that template to the next free slot, without opening the planner</label>
   <label class="c"><input type="checkbox" id="eveningTomorrow"> After 18:00, open on tomorrow instead of today</label>
+</section>
+
+<section>
+  <h2>Template shortcuts</h2>
+  <p class="hint">Give a template its own shortcut: click its button, then press the keys (for example Alt+W). It adds that template to your next free slot on Google Calendar, even when the planner is closed. Alt+1…9 always add your first nine templates.</p>
+  <div id="scList"></div>
 </section>
 
 <section>

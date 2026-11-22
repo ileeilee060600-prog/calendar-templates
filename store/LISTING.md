@@ -24,7 +24,7 @@ Calendar Templates adds reusable event templates and a fast day planner right in
 ★ ONE KEYSTROKE
 • Alt+T opens the planner on top of Google Calendar.
 • Enter adds the selected template to the next free slot of the day, so blocks never overlap.
-• Alt+1 … Alt+9 add your first nine templates directly.
+• Alt+1 … Alt+9 add your first nine templates directly, even without opening the planner. Give any template its own shortcut.
 • Type naturally: “deep work 14:30 45m”, “gym 6pm 1h”, “call @9 20m”.
 • Unknown text becomes a quick one-off block.
 

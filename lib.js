@@ -157,6 +157,42 @@
     return mergeBusy(busy, from, to).reduce(function (a, b) { return a + (b[1] - b[0]); }, 0) / 60000;
   }
 
+  // ---- shortcuts: {code, alt, ctrl, shift, meta} ----
+  function shortcutFromEvent(e) {
+    return { code: e.code, alt: !!e.altKey, ctrl: !!e.ctrlKey, shift: !!e.shiftKey, meta: !!e.metaKey };
+  }
+  function shortcutLabel(sc) {
+    if (!sc || !sc.code) return '';
+    var k = sc.code.replace(/^Key/, '').replace(/^Digit/, '').replace(/^Arrow/, '').replace(/^Numpad/, 'Num ');
+    return [sc.ctrl && 'Ctrl', sc.alt && 'Alt', sc.shift && 'Shift', sc.meta && 'Meta', k].filter(Boolean).join('+');
+  }
+  function sameShortcut(a, b) {
+    return !!a && !!b && a.code === b.code && !!a.alt === !!b.alt && !!a.ctrl === !!b.ctrl && !!a.shift === !!b.shift && !!a.meta === !!b.meta;
+  }
+  function matchesShortcut(e, sc) {
+    return !!sc && e.code === sc.code && !!e.altKey === !!sc.alt && !!e.ctrlKey === !!sc.ctrl && !!e.shiftKey === !!sc.shift && !!e.metaKey === !!sc.meta;
+  }
+  // Combinations Chrome (or Windows) handles before a web page ever sees them.
+  var RESERVED = ['Ctrl+T', 'Ctrl+N', 'Ctrl+W', 'Ctrl+Shift+T', 'Ctrl+Shift+N', 'Ctrl+Shift+W', 'Ctrl+Tab', 'Ctrl+Shift+Tab',
+    'Ctrl+L', 'Ctrl+K', 'Ctrl+E', 'Ctrl+F', 'Ctrl+P', 'Ctrl+S', 'Ctrl+D', 'Ctrl+H', 'Ctrl+J', 'Ctrl+U', 'Ctrl+O', 'Ctrl+R', 'Ctrl+A',
+    'Ctrl+C', 'Ctrl+V', 'Ctrl+X', 'Ctrl+Z', 'Ctrl+Y', 'Ctrl+Q', 'Ctrl+G', 'Ctrl+B',
+    'Alt+D', 'Alt+F', 'Alt+E', 'Alt+Left', 'Alt+Right', 'Alt+Home', 'Alt+F4', 'Alt+Space', 'Alt+Tab', 'Alt+Enter'];
+  // Returns '' when the shortcut is fine, otherwise a short reason. templates: all templates; selfId: the one being edited.
+  function checkShortcut(sc, templates, selfId, hotkey) {
+    if (!sc || !sc.code) return 'No key pressed.';
+    if (!(sc.alt || sc.ctrl || sc.meta)) return 'Use Alt, Ctrl or ⌘ together with a key.';
+    var label = shortcutLabel(sc);
+    if (RESERVED.indexOf(label) >= 0) return 'Chrome or Windows already uses ' + label + '. Try Alt with a letter.';
+    if (/^F\d+$/.test(sc.code) && !sc.alt && !sc.ctrl && !sc.meta) return 'Use a modifier key too.';
+    if (sameShortcut(sc, hotkey)) return label + ' already opens the planner.';
+    if (sc.alt && !sc.ctrl && !sc.shift && !sc.meta && /^Digit[1-9]$/.test(sc.code)) return 'Alt+1…9 are the automatic numbers of your first nine templates.';
+    for (var i = 0; i < (templates || []).length; i++) {
+      var t = templates[i];
+      if (t.id !== selfId && sameShortcut(t.shortcut, sc)) return label + ' is already used by “' + t.name + '”.';
+    }
+    return '';
+  }
+
   // ---- storage (chrome.storage.sync: one key per template, plus an order list) ----
   var store = {
     getSettings: async function () {
@@ -204,7 +240,9 @@
 
   var CT = { COLORS: COLORS, DEFAULTS: DEFAULTS, SEEDS: SEEDS, REMINDER_CHOICES: REMINDER_CHOICES,
     colorHex: colorHex, parseTokens: parseTokens, matchScore: matchScore, dayAt: dayAt,
-    ceil5: ceil5, round15: round15, findSlot: findSlot, freeGaps: freeGaps, busyMinutes: busyMinutes, store: store };
+    ceil5: ceil5, round15: round15, findSlot: findSlot, freeGaps: freeGaps, busyMinutes: busyMinutes,
+    shortcutFromEvent: shortcutFromEvent, shortcutLabel: shortcutLabel, sameShortcut: sameShortcut, matchesShortcut: matchesShortcut,
+    checkShortcut: checkShortcut, store: store };
   root.CT = CT;
   if (typeof module !== 'undefined' && module.exports) module.exports = CT;
 })(typeof self !== 'undefined' ? self : globalThis);

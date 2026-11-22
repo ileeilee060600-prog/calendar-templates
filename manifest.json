@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Calendar Templates",
-  "version": "1.8.1",
+  "version": "1.9.0",
   "description": "Event templates and a fast day planner for Google Calendar. Press Alt+T, pick a template, done.",
   "minimum_chrome_version": "116",
   "homepage_url": "https://ileeilee060600-prog.github.io/calendar-templates/",

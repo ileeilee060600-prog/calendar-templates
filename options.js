@@ -24,6 +24,40 @@ async function init() {
   $('hk').textContent = $('hkLead').textContent = label(s.hotkey);
   const r = await send({ type: 'calendars' });
   r.ok ? setStatus(true, 'connected') : setStatus(false, r.code === 'AUTH' ? 'not connected yet' : (r.error || 'error'));
+  renderShortcuts();
+}
+
+// ---- per-template shortcuts: click, then press the keys
+let templates = [];
+async function renderShortcuts() {
+  const s = await store.getSettings();
+  templates = await store.getTemplates();
+  const box = $('scList'); box.textContent = '';
+  templates.forEach(t => {
+    const dot = document.createElement('span'); dot.className = 'dot'; dot.style.background = CT.colorHex(t.colorId) || '#9aa0a6';
+    const nm = document.createElement('span'); nm.className = 'nm'; nm.textContent = t.name;
+    const er = document.createElement('span'); er.className = 'er';
+    const btn = document.createElement('button'); btn.className = 'rec s' + (t.shortcut ? ' set' : '');
+    btn.textContent = t.shortcut ? CT.shortcutLabel(t.shortcut) : 'Set shortcut';
+    const clr = document.createElement('button'); clr.className = 't'; clr.textContent = 'Clear'; clr.style.display = t.shortcut ? '' : 'none';
+    clr.onclick = async () => { const n = Object.assign({}, t); delete n.shortcut; await store.saveTemplate(n); renderShortcuts(); };
+    btn.onclick = () => {
+      btn.textContent = 'Press the keys…  (Esc cancels)'; btn.className = 'rec s on'; er.textContent = '';
+      const on = async e => {
+        if (['Alt', 'Control', 'Shift', 'Meta'].includes(e.key)) return;
+        e.preventDefault(); e.stopPropagation();
+        if (e.key === 'Escape') { window.removeEventListener('keydown', on, true); renderShortcuts(); return; }
+        const sc = CT.shortcutFromEvent(e), err = CT.checkShortcut(sc, templates, t.id, s.hotkey);
+        if (err) { er.textContent = err; return; }
+        window.removeEventListener('keydown', on, true);
+        await store.saveTemplate(Object.assign({}, t, { shortcut: sc }));
+        renderShortcuts();
+      };
+      window.addEventListener('keydown', on, true);
+    };
+    const row = document.createElement('div'); row.className = 'scrow2';
+    row.append(dot, nm, er, btn, clr); box.append(row);
+  });
 }
 
 $('copyRedir').onclick = () => navigator.clipboard.writeText($('redir').textContent);
@@ -49,6 +83,8 @@ $('hk').onclick = () => {
     window.removeEventListener('keydown', on, true);
     if (e.key === 'Escape' || !(e.altKey || e.ctrlKey || e.metaKey)) { init(); $('hkHint').textContent = 'needs Alt, Ctrl or Meta'; return; }
     const hk = { code: e.code, alt: e.altKey, ctrl: e.ctrlKey, shift: e.shiftKey, meta: e.metaKey };
+    const clash = templates.find(t => CT.sameShortcut(t.shortcut, hk));
+    if (clash) { init(); $('hkHint').textContent = label(hk) + ' is already the shortcut of “' + clash.name + '”'; return; }
     store.setSettings({ hotkey: hk }); b.textContent = $('hkLead').textContent = label(hk);
     $('hkHint').textContent = 'saved — refresh open Calendar tabs if it does not react';
   };

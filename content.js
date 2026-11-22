@@ -244,7 +244,7 @@ svg{flex:none}
 .sp{flex:1}
 .dur{color:var(--var);font-size:13px;flex:none;font-variant-numeric:tabular-nums}
 .row.sel .meta,.row.sel .dur{color:inherit;opacity:.78}
-.hk{font-size:11px;color:var(--faint);flex:none;width:36px;text-align:right;opacity:0;transition:opacity .15s}
+.hk{font-size:11px;color:var(--faint);flex:none;min-width:36px;white-space:nowrap;text-align:right;opacity:0;transition:opacity .15s}
 .row:hover .hk,.row.sel .hk{opacity:1}.row.sel .hk{color:inherit;opacity:.6}
 .edit{width:32px;height:32px;display:flex;align-items:center;justify-content:center;color:inherit;flex:none;border-radius:50%;opacity:0;transition:opacity .15s,background .15s}
 .row:hover .edit{opacity:.8}.edit:hover{background:var(--state);opacity:1}.edit svg{width:18px;height:18px}
@@ -267,7 +267,6 @@ svg{flex:none}
 .blk.can{cursor:grab}
 .blk.pending{opacity:.6}
 .ghost{z-index:4;cursor:grab;box-shadow:var(--elev);opacity:.7}
-.ghost small::after{content:" · preview"}
 .ghost:hover{opacity:.9}
 .addb{position:absolute;top:2px;right:2px;height:20px;padding:0 10px;display:none;align-items:center;border-radius:10px;background:var(--panel);color:var(--on);font:500 11px "Google Sans Text",Roboto,Arial,sans-serif;box-shadow:0 1px 3px rgba(0,0,0,.35)}
 .ghost:hover .addb{display:flex}.addb:hover{background:var(--primary);color:var(--onprimary)}
@@ -279,6 +278,8 @@ svg{flex:none}
 .blk:hover .rz::after,.blk.dragging .rz::after{opacity:.55}
 .blk .x{position:absolute;top:2px;right:2px;width:20px;height:20px;display:none;align-items:center;justify-content:center;color:inherit;background:rgba(0,0,0,.22);border-radius:50%}
 .blk .x svg{width:13px;height:13px}.blk.can:hover .x{display:flex}
+.pinl{position:absolute;left:${GUT - 2}px;right:0;border-top:2px solid var(--primary);z-index:5;pointer-events:none}
+.pinl::before{content:"";position:absolute;left:-5px;top:-6px;width:10px;height:10px;border-radius:50%;background:var(--primary)}
 .now{position:absolute;left:${GUT - 2}px;right:0;border-top:2px solid #ea4335;z-index:5;pointer-events:none}
 .now::before{content:"";position:absolute;left:-6px;top:-7px;width:12px;height:12px;border-radius:50%;background:#ea4335}
 .allday{display:flex;flex-wrap:wrap;gap:4px;padding:12px 10px 4px ${GUT}px;position:sticky;top:0;background:var(--panel);z-index:7}
@@ -302,7 +303,16 @@ svg{flex:none}
 .ehead h2{font:400 24px/32px "Google Sans",Roboto,Arial,sans-serif;margin:0;flex:1}
 .ehead button.x{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:var(--var)}
 .ehead button.x:hover{background:var(--state)}.ehead button.x svg{width:22px;height:22px}
-.form{overflow:auto;padding:12px 24px 16px;display:grid;grid-template-columns:1fr 1fr;gap:22px 16px;max-height:min(560px,64vh)}
+.card[data-mode=edit]{width:min(620px,100%)}
+.form{overflow:auto;padding:12px 24px 16px;display:flex;flex-direction:column;gap:22px;max-height:min(560px,70vh)}
+.in.big{font:400 17px "Google Sans","Google Sans Text",Roboto,Arial,sans-serif;padding:14px 16px}
+.scrow{display:flex;align-items:center;gap:6px}
+.rec{height:40px;padding:0 18px;border-radius:20px;background:var(--hst);color:var(--var);font:500 14px "Google Sans Text",Roboto,Arial,sans-serif;transition:background .15s}
+.rec:hover{filter:brightness(1.06)}.rec.set{background:var(--sec);color:var(--onsec)}.rec.on{background:var(--primary);color:var(--onprimary)}
+.err{color:var(--error);font-size:12.5px;margin-top:6px}.err:empty{display:none}
+.more{display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 14px 0 8px;border-radius:18px;color:var(--primary);font:500 14px "Google Sans Text",Roboto,Arial,sans-serif;transition:background .15s}
+.more:hover{background:var(--state)}.more svg{width:20px;height:20px;transition:transform .2s}.more[aria-expanded=true] svg{transform:rotate(90deg)}
+.moreBox{display:none;grid-template-columns:1fr 1fr;gap:20px 16px}.moreBox.open{display:grid}
 .f{display:flex;flex-direction:column;gap:8px;min-width:0}.f.wide{grid-column:1/-1}
 .f>label{font:500 12px "Google Sans Text",Roboto,Arial,sans-serif;color:var(--var);letter-spacing:.01em}
 .in{width:100%;border:0;border-radius:4px 4px 0 0;background:var(--hst);color:var(--on);padding:12px 14px;font:400 15px "Google Sans Text",Roboto,Arial,sans-serif;outline:0;box-shadow:inset 0 -1px 0 var(--var);transition:box-shadow .15s;caret-color:var(--primary)}
@@ -493,7 +503,7 @@ select.in{appearance:none;cursor:pointer}
       const t = item.tpl;
       lead = dot(t.colorId); name = t.name;
       meta = [t.startTime, remShort(t.reminders), t.title && t.title !== t.name ? t.title : ''].filter(Boolean).join(' · ');
-      right = [h('span', { class: 'dur' }, fmtDur(t.duration)), h('span', { class: 'hk' }, item.idx < 9 ? ALT + (item.idx + 1) : '')];
+      right = [h('span', { class: 'dur' }, fmtDur(t.duration)), h('span', { class: 'hk' }, t.shortcut ? CT.shortcutLabel(t.shortcut) : (item.idx < 9 ? ALT + (item.idx + 1) : ''))];
     } else if (item.type === 'adhoc') {
       lead = h('span', { class: 'lead' }, icon('plus')); name = '“' + item.text + '”'; meta = 'one-off block';
     } else if (item.type === 'new') {
@@ -617,7 +627,6 @@ select.in{appearance:none;cursor:pointer}
     const el = R.tl, keep = el.scrollTop;
     el.textContent = '';
     const d = S.day, d0 = dayKey(d);
-    const p = plan(items[S.sel]);
     const banner = authBanner();
     if (banner) el.append(banner);
     const allDay = S.events.filter(e => e.allDay);
@@ -626,7 +635,7 @@ select.in{appearance:none;cursor:pointer}
     const hrs = ms => (ms - d0) / H;
     let lo = Math.floor(hrs(CT.dayAt(d, S.settings.dayStart))) - 1, hi = Math.ceil(hrs(CT.dayAt(d, S.settings.dayEnd))) + 1;
     timed.forEach(e => { lo = Math.min(lo, Math.floor(hrs(e.start))); hi = Math.max(hi, Math.ceil(hrs(e.end))); });
-    if (p) { lo = Math.min(lo, Math.floor(hrs(p.start))); hi = Math.max(hi, Math.ceil(hrs(p.end))); }
+    if (S.pin != null && S.pin >= d0 && S.pin < d0 + 24 * H) { lo = Math.min(lo, Math.floor(hrs(S.pin))); hi = Math.max(hi, Math.ceil(hrs(S.pin)) + 1); }
     lo = Math.max(0, lo); hi = Math.min(24, Math.max(hi, lo + 6));
     let used = 0;
     for (const c of el.children) used += c.offsetHeight;
@@ -649,12 +658,8 @@ select.in{appearance:none;cursor:pointer}
       grid.append(b);
     });
     R.ghost = null;
-    let ghostTop = null;
-    if (p) {
-      R.ghost = block(p.start, p.end, colorOf(p.colorId, calById(p.calendarId)), p.title || 'New block', { cls: 'ghost', rz: true, add: true, tip: 'Preview: where this block will go. Drag it to choose the time, or press Add / Enter to put it in your calendar' });
-      ghostTop = parseFloat(R.ghost.style.top);
-      grid.append(R.ghost);
-    }
+    // A thin line marks a start time you picked by clicking the timeline.
+    if (S.pin != null && S.pin >= d0 && S.pin < d0 + 24 * H) grid.append(h('div', { class: 'pinl', style: 'top:' + (hrs(S.pin) - lo) * px + 'px', title: 'Next block starts here' }));
     if (sameDay(d, new Date())) {
       const n = hrs(Date.now());
       if (n >= lo && n <= hi) grid.append(h('div', { class: 'now', style: 'top:' + (n - lo) * px + 'px' }));
@@ -664,10 +669,9 @@ select.in{appearance:none;cursor:pointer}
 
     // Only a very long day (more hours than fit at the minimum scale) scrolls.
     const off = grid.offsetTop;
-    if (el.scrollHeight <= el.clientHeight + 1) { el.scrollTop = 0; S.lastGhost = p ? p.start : -1; S.noScroll = false; return; }
-    if (S.noScroll) { el.scrollTop = keep; S.lastGhost = p ? p.start : S.lastGhost; S.noScroll = false; }
-    else if (ghostTop != null && S.lastGhost !== p.start) { S.lastGhost = p.start; el.scrollTop = Math.max(0, off + ghostTop - 110); }
-    else if (ghostTop == null && S.lastGhost == null) {
+    if (el.scrollHeight <= el.clientHeight + 1) { el.scrollTop = 0; S.lastGhost = -1; S.noScroll = false; return; }
+    if (S.noScroll) { el.scrollTop = keep; S.noScroll = false; }
+    else if (S.lastGhost == null) {
       const startH = sameDay(d, new Date()) ? hrs(Date.now()) : hrs(CT.dayAt(d, S.settings.dayStart));
       el.scrollTop = Math.max(0, off + (startH - lo - 1) * px); S.lastGhost = -1;
     } else el.scrollTop = keep;
@@ -1018,6 +1022,12 @@ select.in{appearance:none;cursor:pointer}
     try { tpls = await CT.store.getTemplates(); } catch (e) { /* none */ }
     const tpl = tpls[n - 1];
     if (!tpl) { snack('No template ' + n + ' yet. Press Alt+T and choose New template.', null, true); return; }
+    return doQuickTpl(tpl);
+  }
+
+  function quickAddTpl(tpl) { quickQ = quickQ.then(() => doQuickTpl(tpl)).catch(() => {}); }
+
+  async function doQuickTpl(tpl) {
     let day = viewDay();
     const now = new Date();
     if (S.settings.eveningTomorrow && sameDay(day, now) && now.getHours() >= 18) day = addDays(day, 1);
@@ -1126,20 +1136,46 @@ select.in{appearance:none;cursor:pointer}
   // ---------------------------------------------------------------- template editor
   function openEditor(tpl, prefill) {
     const isNew = !tpl;
-    const d = Object.assign({ id: '', name: '', title: '', duration: 30, colorId: '', reminders: [0], description: '', location: '', calendarId: '', startTime: '' }, tpl || {}, prefill || {});
+    const d = Object.assign({ id: '', name: '', title: '', duration: 30, colorId: '', reminders: [0], description: '', location: '', calendarId: '', startTime: '', shortcut: null }, tpl || {}, prefill || {});
     d.reminders = (d.reminders || []).slice();
-    S.mode = 'edit'; R.card.dataset.mode = 'edit';
-    const name = h('input', { class: 'in', value: d.name, placeholder: 'e.g. Deep work', oninput: e => { d.name = e.target.value; } });
-    const title = h('input', { class: 'in', value: d.title, placeholder: 'Same as name', oninput: e => { d.title = e.target.value; } });
-    const durIn = h('input', { class: 'in', type: 'number', min: '1', max: '1440', value: d.duration, style: 'width:72px;padding:6px 10px', oninput: e => { d.duration = Math.max(1, +e.target.value || 1); syncDur(); } });
+    S.mode = 'edit'; R.card.dataset.mode = 'edit'; S.recording = null;
+
+    // --- the four things most templates need
+    const name = h('input', { class: 'in big', value: d.name, placeholder: 'Template name, e.g. Deep work', oninput: e => { d.name = e.target.value; } });
+    const durIn = h('input', { class: 'in', type: 'number', min: '1', max: '1440', value: d.duration, style: 'width:76px;padding:8px 10px', oninput: e => { d.duration = Math.max(1, +e.target.value || 1); syncDur(); } });
     const durChips = h('div', { class: 'chips' });
     const syncDur = () => [...durChips.children].forEach(c => c.setAttribute('aria-pressed', String(+c.dataset.m === d.duration)));
-    [15, 25, 30, 45, 60, 90, 120].forEach(m => durChips.append(h('button', { class: 'chip', 'data-m': m, onclick: () => { d.duration = m; durIn.value = m; syncDur(); } }, fmtDur(m))));
+    [15, 30, 45, 60, 90, 120].forEach(m => durChips.append(h('button', { class: 'chip', 'data-m': m, onclick: () => { d.duration = m; durIn.value = m; syncDur(); } }, fmtDur(m))));
     syncDur();
     const sw = h('div', { class: 'chips' });
     const syncSw = () => [...sw.children].forEach(c => c.setAttribute('aria-pressed', String(c.dataset.id === d.colorId)));
     CT.COLORS.forEach(c => sw.append(h('button', { class: 'sw' + (c.hex ? '' : ' def'), 'data-id': c.id, title: c.name, style: c.hex ? 'background:' + c.hex + ';' + tint(c.hex) : '', onclick: () => { d.colorId = c.id; syncSw(); } }, c.hex ? icon('check') : 'Calendar')));
     syncSw();
+
+    // --- shortcut: click, then press the keys
+    const scErr = h('div', { class: 'err' });
+    const scClear = h('button', { class: 'ibtn', title: 'Remove shortcut', onclick: () => { d.shortcut = null; scErr.textContent = ''; paintSc(); } }, icon('close'));
+    const scBtn = h('button', { class: 'rec', onclick: () => startRec() });
+    const paintSc = () => {
+      scBtn.textContent = d.shortcut ? CT.shortcutLabel(d.shortcut) : 'Click, then press the keys';
+      scBtn.classList.toggle('set', !!d.shortcut); scBtn.classList.remove('on');
+      scClear.style.display = d.shortcut ? '' : 'none';
+    };
+    const stopRec = () => { S.recording = null; paintSc(); };
+    const startRec = () => {
+      scErr.textContent = ''; scBtn.textContent = 'Press the keys…  (Esc cancels)'; scBtn.classList.add('on');
+      S.recording = e => {
+        if (['Alt', 'Control', 'Shift', 'Meta'].includes(e.key)) return;
+        if (e.key === 'Escape') { stopRec(); return; }
+        const sc = CT.shortcutFromEvent(e), err = CT.checkShortcut(sc, S.templates, d.id, S.settings.hotkey);
+        if (err) { scErr.textContent = err; return; }      // keep listening so the user can try another
+        d.shortcut = sc; scErr.textContent = ''; stopRec();
+      };
+    };
+    paintSc();
+
+    // --- everything else, tucked away
+    const title = h('input', { class: 'in', value: d.title, placeholder: 'Same as the template name', oninput: e => { d.title = e.target.value; } });
     const rem = h('div', { class: 'chips' });
     const syncRem = () => [...rem.children].forEach(c => c.setAttribute('aria-pressed', String(d.reminders.indexOf(+c.dataset.m) >= 0)));
     CT.REMINDER_CHOICES.forEach(r => rem.append(h('button', { class: 'chip', 'data-m': r.min, onclick: () => { const i = d.reminders.indexOf(r.min); i >= 0 ? d.reminders.splice(i, 1) : d.reminders.push(r.min); syncRem(); } }, r.label)));
@@ -1153,6 +1189,12 @@ select.in{appearance:none;cursor:pointer}
     const desc = h('textarea', { class: 'in', placeholder: 'Optional, added to every event from this template', oninput: e => { d.description = e.target.value; } });
     desc.value = d.description;
     const F = (label, el, wide) => h('div', { class: 'f' + (wide ? ' wide' : '') }, h('label', {}, label), el);
+    const customised = !!(d.title || d.location || d.description || d.startTime || d.calendarId || JSON.stringify(d.reminders.slice().sort()) !== '[0]');
+    const moreBox = h('div', { class: 'moreBox' + (customised ? ' open' : '') },
+      F('Event title', title, true), F('Reminders', rem, true), F('Default start time', start), F('Calendar', calSel), F('Location', loc, true), F('Notes', desc, true));
+    const more = h('button', { class: 'more', 'aria-expanded': String(customised), onclick: () => {
+      const open = !moreBox.classList.contains('open'); moreBox.classList.toggle('open', open); more.setAttribute('aria-expanded', String(open));
+    } }, icon('right'), 'More options');
 
     let confirmDel = false;
     const delBtn = isNew ? null : h('button', { class: 'btn danger', onclick: async () => {
@@ -1163,7 +1205,9 @@ select.in{appearance:none;cursor:pointer}
       d.name = d.name.trim();
       if (!d.name) { name.focus(); return; }
       d.title = d.title.trim(); d.duration = Math.max(1, +d.duration || 30); d.reminders.sort((a, b) => a - b);
+      if (!d.shortcut) delete d.shortcut;
       if (!d.id || isNew) d.id = 'u' + Date.now().toString(36);
+      S.recording = null;
       await CT.store.saveTemplate(d); S.templates = await CT.store.getTemplates();
       showList(); S.sel = Math.max(0, S.templates.findIndex(t => t.id === d.id)); renderAll();
     };
@@ -1171,22 +1215,25 @@ select.in{appearance:none;cursor:pointer}
 
     R.editview.textContent = '';
     R.editview.append(
-      h('div', { class: 'ehead' }, h('h2', {}, isNew ? 'New template' : 'Edit template'), h('button', { class: 'x', title: 'Back (Esc)', onclick: showList }, icon('close'))),
+      h('div', { class: 'ehead' }, h('h2', {}, isNew ? 'New template' : 'Edit template'), h('button', { class: 'x', title: 'Back (Esc)', onclick: () => { S.recording = null; showList(); } }, icon('close'))),
       h('div', { class: 'form' },
-        F('Name', name), F('Event title', title),
-        F('Duration', h('div', { class: 'chips' }, durChips, durIn, h('span', { style: 'color:var(--muted);font-size:12px' }, 'min')), true), F('Color', sw, true),
-        F('Reminders', rem, true),
-        F('Default start time (optional)', start), F('Calendar', calSel),
-        F('Location', loc, true), F('Description', desc, true)),
-      h('div', { class: 'efoot' }, delBtn, h('span', { class: 'sp' }), h('button', { class: 'btn ghostb', onclick: showList }, 'Cancel'), h('button', { class: 'btn', onclick: save, title: 'Save (Ctrl+Enter)' }, 'Save')));
+        F('Name', name),
+        F('Length', h('div', { class: 'chips' }, durChips, durIn, h('span', { style: 'color:var(--var);font-size:12px' }, 'min'))),
+        F('Color', sw),
+        F('Shortcut', h('div', {}, h('div', { class: 'scrow' }, scBtn, scClear), scErr)),
+        h('div', {}, more), moreBox),
+      h('div', { class: 'efoot' }, delBtn, h('span', { class: 'sp' }), h('button', { class: 'btn ghostb', onclick: () => { S.recording = null; showList(); } }, 'Cancel'), h('button', { class: 'btn', onclick: save, title: 'Save (Ctrl+Enter)' }, 'Save')));
     name.focus();
   }
 
   // ---------------------------------------------------------------- keyboard
   let hotkey = CT.DEFAULTS.hotkey;
   CT.store.getSettings().then(s => { hotkey = s.hotkey; S.settings = s; }).catch(() => {});
+  const refreshTpls = () => CT.store.getTemplates().then(t => { S.templates = t; }).catch(() => {});
+  refreshTpls();
   try {
     chrome.storage.onChanged.addListener((ch, area) => {
+      if (area === 'sync' && Object.keys(ch).some(k => k === 'order' || k.indexOf('t_') === 0)) refreshTpls();
       if (area === 'sync' && ch.settings) { S.settings = Object.assign({}, CT.DEFAULTS, ch.settings.newValue || {}); hotkey = S.settings.hotkey; }
     });
   } catch (e) { /* extension context gone */ }
@@ -1209,8 +1256,10 @@ select.in{appearance:none;cursor:pointer}
       if (S.open) e.stopImmediatePropagation();
       return;
     }
-    if (isHot(e)) { e.preventDefault(); e.stopImmediatePropagation(); toggle(); return; }
+    if (!S.recording && isHot(e)) { e.preventDefault(); e.stopImmediatePropagation(); toggle(); return; }
     if (!S.open) {
+      const own = !e.repeat && S.templates.find(t => t.shortcut && CT.matchesShortcut(e, t.shortcut));
+      if (own) { e.preventDefault(); e.stopImmediatePropagation(); quickAddTpl(own); return; }
       if (S.settings.quickKeys !== false && e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && /^Digit[1-9]$/.test(e.code) && !e.repeat) {
         e.preventDefault(); e.stopImmediatePropagation(); quickAdd(+e.code.slice(5));
       }
@@ -1218,6 +1267,7 @@ select.in{appearance:none;cursor:pointer}
     }
     e.stopImmediatePropagation();   // Calendar's single-key shortcuts must never see typing in the planner
     if (e.isComposing) return;
+    if (S.recording) { e.preventDefault(); S.recording(e); return; }   // the template editor is listening for a new shortcut
     handleKey(e);
   }
 
@@ -1232,6 +1282,10 @@ select.in{appearance:none;cursor:pointer}
       if (k === 'Escape') { e.preventDefault(); showList(); }
       else if (k === 'Enter' && ctrl) { e.preventDefault(); S.editSave && S.editSave(); }
       return;
+    }
+    if (S.mode === 'list' && !e.repeat) {
+      const own = S.templates.find(t => t.shortcut && CT.matchesShortcut(e, t.shortcut));
+      if (own) { e.preventDefault(); addBlock({ type: 'tpl', tpl: own }, false); return; }
     }
     if (k === 'Escape') { e.preventDefault(); S.mode === 'import' ? showList() : close(); return; }
     const items = buildItems();

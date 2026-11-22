@@ -32,4 +32,23 @@ a.deepStrictEqual(CT.freeGaps([], 10 * H, 9 * H, 15), []);
 a.strictEqual(CT.colorHex('11'), '#d50000');
 a.strictEqual(CT.colorHex(''), null);
 
+// shortcuts
+const sc = (code, o) => Object.assign({ code, alt: false, ctrl: false, shift: false, meta: false }, o);
+a.strictEqual(CT.shortcutLabel(sc('KeyW', { alt: true })), 'Alt+W');
+a.strictEqual(CT.shortcutLabel(sc('Digit3', { ctrl: true, shift: true })), 'Ctrl+Shift+3');
+a.strictEqual(CT.shortcutLabel(sc('ArrowLeft', { alt: true })), 'Alt+Left');
+a(CT.matchesShortcut({ code: 'KeyW', altKey: true, ctrlKey: false, shiftKey: false, metaKey: false }, sc('KeyW', { alt: true })));
+a(!CT.matchesShortcut({ code: 'KeyW', altKey: true, ctrlKey: false, shiftKey: true, metaKey: false }, sc('KeyW', { alt: true })));
+const tpls = [{ id: 'a', name: 'Deep work', shortcut: sc('KeyW', { alt: true }) }, { id: 'b', name: 'Gym' }];
+const hk = sc('KeyT', { alt: true });
+a.strictEqual(CT.checkShortcut(sc('KeyG', { alt: true }), tpls, 'b', hk), '');
+a(CT.checkShortcut(sc('KeyW', { alt: true }), tpls, 'b', hk).includes('Deep work'));
+a.strictEqual(CT.checkShortcut(sc('KeyW', { alt: true }), tpls, 'a', hk), '');            // editing itself is fine
+a(CT.checkShortcut(sc('KeyT', { alt: true }), tpls, 'b', hk).includes('opens the planner'));
+a(CT.checkShortcut(sc('KeyG'), tpls, 'b', hk).includes('Alt, Ctrl'));                      // no modifier
+a(CT.checkShortcut(sc('KeyG', { shift: true }), tpls, 'b', hk).includes('Alt, Ctrl'));     // shift alone is not enough
+a(CT.checkShortcut(sc('KeyT', { ctrl: true }), tpls, 'b', hk).includes('Chrome'));          // reserved
+a(CT.checkShortcut(sc('KeyD', { alt: true }), tpls, 'b', hk).includes('Chrome'));
+a(CT.checkShortcut(sc('Digit2', { alt: true }), tpls, 'b', hk).includes('automatic'));
+
 console.log('lib.test.js: all passed');
