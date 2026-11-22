@@ -274,7 +274,7 @@ svg{flex:none}
 .rz::after{content:"";position:absolute;left:50%;bottom:2px;width:16px;margin-left:-8px;height:3px;border-radius:2px;background:currentColor;opacity:0;transition:opacity .15s}
 .blk:hover .rz::after,.blk.dragging .rz::after{opacity:.55}
 .blk .x{position:absolute;top:2px;right:2px;width:20px;height:20px;display:none;align-items:center;justify-content:center;color:inherit;background:rgba(0,0,0,.22);border-radius:50%}
-.blk .x svg{width:13px;height:13px}.blk.mine:hover .x{display:flex}
+.blk .x svg{width:13px;height:13px}.blk.can:hover .x{display:flex}
 .now{position:absolute;left:${GUT - 2}px;right:0;border-top:2px solid #ea4335;z-index:5;pointer-events:none}
 .now::before{content:"";position:absolute;left:-6px;top:-7px;width:12px;height:12px;border-radius:50%;background:#ea4335}
 .allday{display:flex;flex-wrap:wrap;gap:4px;padding:12px 10px 4px ${GUT}px;position:sticky;top:0;background:var(--panel);z-index:7}
@@ -637,7 +637,7 @@ select.in{appearance:none;cursor:pointer}
     timed.forEach(e => {
       const c = cols.get(e), can = e.canEdit && !e.pending;
       const b = block(e.start, e.end, colorOf(e.colorId, calById(e.cal)), e.title, {
-        cls: (can ? 'can' : '') + (e.mine ? ' mine' : '') + (e.pending ? ' pending' : ''), c: c.c, n: c.n, x: e.mine && !e.pending, rz: can,
+        cls: (can ? 'can' : '') + (e.mine ? ' mine' : '') + (e.pending ? ' pending' : ''), c: c.c, n: c.n, x: can, rz: can,
         tip: e.title + ' · ' + fmtTime(e.start) + ' – ' + fmtTime(e.end) + (can ? '\nDrag to move · drag the bottom edge to resize · click to plan right after it' : '\nClick to plan right after it')
       });
       BLK.set(b, e);
