@@ -80,7 +80,7 @@ async function calendars() {
   return v;
 }
 
-const EVENT_FIELDS = 'items(id,summary,start,end,colorId,transparency,status,organizer(self),attendees(self,responseStatus),description,location,reminders)';
+const EVENT_FIELDS = 'items(id,summary,start,end,colorId,transparency,status,organizer(self),attendees(self,responseStatus),description,location,reminders,extendedProperties/private)';
 
 function mapEvent(e, cal, writable) {
   const me = (e.attendees || []).find(a => a.self);
@@ -89,6 +89,10 @@ function mapEvent(e, cal, writable) {
     id: e.id, cal, title: e.summary || '(No title)',
     start: Date.parse(e.start.dateTime || e.start.date), end: Date.parse(e.end.dateTime || e.end.date),
     allDay: !e.start.dateTime, colorId: e.colorId || '', free: e.transparency === 'transparent',
+    // Blocks created by this extension carry a private marker, so they stay removable from the planner later.
+    mine: !!(e.extendedProperties && e.extendedProperties.private && e.extendedProperties.private.ct === '1'),
+    description: e.description || '', location: e.location || '',
+    reminders: e.reminders && !e.reminders.useDefault ? (e.reminders.overrides || []).filter(o => o.method === 'popup').map(o => o.minutes) : null,
     // Only personal blocks can be dragged: never meetings with guests or other people's events.
     canEdit: !!writable && !!e.start.dateTime && (e.attendees || []).length <= 1 && (!e.organizer || e.organizer.self === true)
   };

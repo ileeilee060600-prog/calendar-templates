@@ -146,7 +146,8 @@
       summary: title, description: (tpl && tpl.description) || '', location: (tpl && tpl.location) || '',
       start: { dateTime: new Date(start).toISOString(), timeZone: tz() },
       end: { dateTime: new Date(end).toISOString(), timeZone: tz() },
-      reminders: { useDefault: false, overrides: reminders.map(m => ({ method: 'popup', minutes: m })) }
+      reminders: { useDefault: false, overrides: reminders.map(m => ({ method: 'popup', minutes: m })) },
+      extendedProperties: { private: { ct: '1' } }   // marks the block as ours, so it can be removed later
     };
     if (colorId) event.colorId = colorId;
     return { title, dur, start, end, how, colorId, calendarId, event, tpl };
@@ -969,7 +970,7 @@ select.in{appearance:none;cursor:pointer}
       ev.id = r.id; ev.pending = false; S.mineIds.add(r.id);
       nudgeRefresh();
       S.noScroll = true; renderAll();
-      toast('Added “' + p.title + '”  ' + fmtTime(p.start) + ' – ' + fmtTime(p.end), () => removeEvent(ev));
+      toast('Added “' + p.title + '”  ' + fmtTime(p.start) + ' – ' + fmtTime(p.end), () => removeEvent(ev, true));
       return r.id;
     }, err => {
       const c = S.cache.get(key);
@@ -982,14 +983,38 @@ select.in{appearance:none;cursor:pointer}
     });
   }
 
-  async function removeEvent(ev) {
+  // Removing a block can be undone: Undo recreates it from the data we hold about it.
+  async function removeEvent(ev, quiet) {
     if (!ev) return;
     S.events = S.events.filter(x => x !== ev); commit();
     S.noScroll = true; renderAll();
     const id = ev.id || await ev.req;
     if (!id) return;
-    try { await send({ type: 'remove', calendarId: ev.cal, id }); nudgeRefresh(); }
-    catch (err) { S.events.push(ev); commit(); S.noScroll = true; renderAll(); toast('Could not remove: ' + (err.error || ''), null, true); }
+    try {
+      await send({ type: 'remove', calendarId: ev.cal, id }); nudgeRefresh();
+      if (!quiet) toast('Removed “' + ev.title + '”', () => restoreEvent(ev));
+    } catch (err) { S.events.push(ev); commit(); S.noScroll = true; renderAll(); toast('Could not remove: ' + (err.error || ''), null, true); }
+  }
+
+  async function restoreEvent(old) {
+    const body = {
+      summary: old.title, description: old.description || '', location: old.location || '',
+      start: { dateTime: new Date(old.start).toISOString(), timeZone: tz() },
+      end: { dateTime: new Date(old.end).toISOString(), timeZone: tz() },
+      reminders: old.reminders ? { useDefault: false, overrides: old.reminders.map(m => ({ method: 'popup', minutes: m })) } : { useDefault: true },
+      extendedProperties: { private: { ct: '1' } }
+    };
+    if (old.colorId) body.colorId = old.colorId;
+    const ev = Object.assign({}, old, { id: null, pending: true, mine: true, canEdit: true });
+    S.events.push(ev); commit(); S.noScroll = true; renderAll();
+    try {
+      const r = await send({ type: 'create', calendarId: old.cal, event: body });
+      ev.id = r.id; ev.pending = false; S.mineIds.add(r.id); nudgeRefresh();
+      S.noScroll = true; renderAll();
+    } catch (err) {
+      S.events = S.events.filter(x => x !== ev); commit(); S.noScroll = true; renderAll();
+      toast('Could not restore: ' + (err.error || ''), null, true);
+    }
   }
 
   async function moveEvent(ev, s, e, isUndo) {

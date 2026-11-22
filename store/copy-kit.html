@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="bg"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Копирай и постави</title>
+<style>
+:root{--bg:#f8fafd;--card:#fff;--on:#1f1f1f;--muted:#5f6368;--accent:#0b57d0;--ok:#146c2e;--tonal:#c2e7ff;--field:#f0f4f9}
+@media (prefers-color-scheme:dark){:root{--bg:#131314;--card:#1e1f20;--on:#e3e3e3;--muted:#a8abb0;--accent:#a8c7fa;--ok:#6dd58c;--tonal:#004a77;--field:#282a2c}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--on);font:15px/1.5 "Google Sans Text",Roboto,system-ui,sans-serif}
+main{max-width:720px;margin:0 auto;padding:24px 16px 60px}
+h1{font:400 26px "Google Sans",Roboto,system-ui,sans-serif;margin:0 0 4px}
+.lead{color:var(--muted);margin:0 0 20px}
+h2{font:500 18px "Google Sans",Roboto,system-ui,sans-serif;margin:28px 0 4px}
+h2 span{display:inline-block;background:var(--accent);color:var(--bg);border-radius:12px;padding:0 10px;margin-right:8px;font-size:14px}
+.where{color:var(--muted);font-size:13px;margin:0 0 10px}
+.f{background:var(--card);border-radius:16px;padding:12px 14px;margin:8px 0}
+.top{display:flex;align-items:center;gap:10px}
+.lbl{font-weight:500;flex:1}
+.do{color:var(--muted);font-size:13px}
+pre{white-space:pre-wrap;word-break:break-word;background:var(--field);border-radius:10px;padding:10px 12px;margin:8px 0 0;font:13px/1.45 ui-monospace,Consolas,monospace;max-height:140px;overflow:auto}
+button{font:500 14px "Google Sans Text",Roboto,system-ui,sans-serif;border:0;border-radius:18px;height:36px;padding:0 18px;cursor:pointer;background:var(--tonal);color:var(--on);flex:none}
+button.done{background:var(--ok);color:var(--bg)}
+.tick{font-size:13px;color:var(--muted)}
+</style></head>
+<body><main>
+<h1>Копирай → постави</h1>
+<p class="lead">Отиди надолу ред по ред. Натисни <b>Copy</b>, после постави (Ctrl+V) в същото поле в Developer Dashboard.</p>
+
+<h2><span>1</span>Таб „Store listing"</h2>
+<p class="where">В менюто вляво: Store listing</p>
+<div id="s1"></div>
+
+<h2><span>2</span>Таб „Privacy practices"</h2>
+<p class="where">В менюто вляво: Privacy practices</p>
+<div id="s2"></div>
+
+<h2><span>3</span>Таб „Distribution"</h2>
+<p class="where">В менюто вляво: Distribution</p>
+<div id="s3"></div>
+
+<h2><span>4</span>Накрая</h2>
+<div class="f"><div class="top"><span class="lbl">Горе вдясно: <b>Save draft</b>, после <b>Submit for review</b></span></div><div class="do">Ако някое поле е червено, Dashboard-ът ще ти покаже кое. Прати ми снимка.</div></div>
+</main>
+<script>
+const DIR = 'E:\\Claude\\Calendar Templates Chrome Extension\\';
+const S1 = [
+  ['Description', `Plan your day in Google Calendar in seconds.
+
+Calendar Templates adds reusable event templates and a fast day planner right inside Google Calendar. Save the blocks you schedule again and again (deep work, workouts, lunch, reviews) with their title, length, color, reminders, calendar, location and notes. Then press Alt+T, pick one and press Enter.
+
+★ ONE KEYSTROKE
+• Alt+T opens the planner on top of Google Calendar.
+• Enter adds the selected template to the next free slot of the day, so blocks never overlap.
+• Alt+1 … Alt+9 add your first nine templates directly.
+• Type naturally: "deep work 14:30 45m", "gym 6pm 1h", "call @9 20m".
+• Unknown text becomes a quick one-off block.
+
+★ PLAN VISUALLY
+• A live timeline of the day next to your templates.
+• Drag a template onto the timeline to place it.
+• Drag your own blocks to move them; drag the bottom edge to resize. Smooth, snapping to 15 minutes (Shift for 5).
+• Draw on empty time to pick a range.
+• The Free time card lists your open windows; click one to fill it.
+• Ctrl+← / → to plan tomorrow or any other day. After 6 pm it opens on tomorrow.
+
+★ TEMPLATES THAT FIT HOW YOU WORK
+• Reminders default to "At time of event".
+• Choose any Google Calendar event color and the calendar to add to.
+• Create a template from an event you already schedule.
+• Templates sync between your computers through Chrome. Export and import as JSON.
+
+★ PRIVATE BY DESIGN
+• Your calendar data goes only between your browser and Google.
+• No servers of ours, no analytics, no ads.
+• Every change has Undo.
+
+Calendar Templates is an independent extension and is not affiliated with Google. Google Calendar is a trademark of Google LLC.`],
+  ['Category', null, 'Избери от списъка: Productivity → Workflow & Planning (ако го няма: Tools)'],
+  ['Language', null, 'Избери: English'],
+  ['Store icon', DIR + 'icons\\128.png', 'Плъзни този файл в „Drop icon here". Copy копира пътя: в прозореца за избор на файл го постави в полето „File name" и натисни Enter.'],
+  ['Screenshots (по ред)', DIR + 'store\\screenshot-0-hero.png', 'Качи 4 файла в този ред: screenshot-0-hero.png, screenshot-1.png, screenshot-2.png, screenshot-3.png. Copy копира пътя на папката store.', DIR + 'store'],
+  ['Small promo tile', DIR + 'store\\promo-small-hero.png'],
+  ['Official URL', 'https://ileeilee060600-prog.github.io/calendar-templates/'],
+  ['Homepage URL', 'https://ileeilee060600-prog.github.io/calendar-templates/'],
+  ['Support URL', 'https://github.com/ileeilee060600-prog/calendar-templates/issues'],
+];
+const S2 = [
+  ['Single purpose description', 'Lets users create reusable event templates and add them to their Google Calendar day from a planner shown on calendar.google.com.'],
+  ['storage justification', "Saves the user's templates and preferences (synced between their own browsers by Chrome), the short-lived sign-in token in session storage, and the user's account address as a sign-in hint."],
+  ['identity justification', "Runs Google sign-in (OAuth) with chrome.identity.launchWebAuthFlow so the extension can read and add events in the user's Google Calendar."],
+  ['Host permission justification', "calendar.google.com: shows the planner on Google Calendar when the user presses the shortcut or the toolbar button. www.googleapis.com: calls the Google Calendar API to read the day's events and calendar list, and to create, move or delete the events the user asks for. oauth2.googleapis.com: revokes the sign-in token when the user presses Disconnect."],
+  ['Are you using remote code?', null, 'Избери: No, I am not using remote code'],
+  ['Data usage: какво да отметнеш', null, 'Отметни САМО: Personally identifiable information, Authentication information, Website content. Отдолу отметни и трите изречения („I do not sell…", „I do not use…", „I do not use… creditworthiness").'],
+  ['Privacy policy URL', 'https://ileeilee060600-prog.github.io/calendar-templates/privacy.html'],
+];
+const S3 = [
+  ['Payments', null, 'Избери: Free of charge'],
+  ['Visibility', null, 'Избери: Public'],
+  ['Regions', null, 'Избери: All regions'],
+];
+function render(id, list) {
+  const box = document.getElementById(id);
+  list.forEach(([label, value, note, copyAlt]) => {
+    const f = document.createElement('div'); f.className = 'f';
+    const top = document.createElement('div'); top.className = 'top';
+    const l = document.createElement('span'); l.className = 'lbl'; l.textContent = label; top.append(l);
+    const text = copyAlt || value;
+    if (text) {
+      const b = document.createElement('button'); b.textContent = 'Copy';
+      b.onclick = async () => { try { await navigator.clipboard.writeText(text); } catch (e) { const t = document.createElement('textarea'); t.value = text; document.body.append(t); t.select(); document.execCommand('copy'); t.remove(); } b.textContent = '✓ Copied'; b.className = 'done'; };
+      top.append(b);
+    }
+    f.append(top);
+    if (note) { const d = document.createElement('div'); d.className = 'do'; d.textContent = note; f.append(d); }
+    if (value) { const p = document.createElement('pre'); p.textContent = value; f.append(p); }
+    box.append(f);
+  });
+}
+render('s1', S1); render('s2', S2); render('s3', S3);
+</script>
+</body></html>
