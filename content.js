@@ -392,7 +392,7 @@ select.in{appearance:none;cursor:pointer}
     if (S.settings.eveningTomorrow && sameDay(day, now) && now.getHours() >= 18) day = addDays(day, 1);
     S.day = day;
     const c = S.cache.get(dayKey(day));
-    S.events = c ? c.events : [];
+    S.events = c && Date.now() - c.t < 15000 ? c.events : [];   // never paint a stale day
     renderAll();
     R.input.focus();
     loadDay();
@@ -421,7 +421,7 @@ select.in{appearance:none;cursor:pointer}
       const r = await fetchDay(S.day);
       if (token !== loadDay.n || key !== dayKey(S.day)) return;
       const ids = new Set(r.events.map(e => e.id));
-      const keep = S.events.filter(e => e.pending || (e.mine && e.id && !ids.has(e.id)));
+      const keep = S.events.filter(e => e.pending || (e.born && Date.now() - e.born < 15000 && e.id && !ids.has(e.id)));
       S.events = r.events.concat(keep); S.cals = r.calendars; S.auth = 'ok'; S.authMsg = '';
       commit();
       prefetch(1); prefetch(-1);
@@ -449,7 +449,7 @@ select.in{appearance:none;cursor:pointer}
     S.day = addDays(S.day, n);
     S.pin = null; S.pinDur = null; S.lastGhost = null;
     const c = S.cache.get(dayKey(S.day));
-    S.events = c ? c.events : [];
+    S.events = c && Date.now() - c.t < 15000 ? c.events : [];
     renderAll(); loadDay();
   }
 
@@ -967,7 +967,7 @@ select.in{appearance:none;cursor:pointer}
     if (!p || !p.title) return;
     if (S.auth === 'noclient' || S.auth === 'needs' || S.auth === 'error') { openPrefilled(p); return; }
     const key = dayKey(S.day);
-    const ev = { id: null, cal: p.calendarId, title: p.title, start: p.start, end: p.end, allDay: false, colorId: p.colorId, free: false, mine: true, pending: true, canEdit: true };
+    const ev = { id: null, cal: p.calendarId, title: p.title, start: p.start, end: p.end, allDay: false, colorId: p.colorId, free: false, mine: true, pending: true, canEdit: true, born: Date.now() };
     S.events.push(ev); commit();
     S.query = ''; R.input.value = ''; S.pin = null; S.pinDur = null; S.sel = 0; S.lastGhost = null;
     const stay = S.settings.keepOpen !== !!invert;
@@ -1024,13 +1024,13 @@ select.in{appearance:none;cursor:pointer}
     const key = dayKey(day), title = tpl.title || tpl.name;
     let c = S.cache.get(key);
     snack('Adding “' + title + '”…');
-    if (!c || Date.now() - c.t > 60000) {
+    if (!c || Date.now() - c.t > 15000) {
       try { const r = await fetchDay(day); c = { events: r.events, cals: r.calendars, t: Date.now() }; S.cache.set(key, c); }
       catch (e) { return quickFail(e); }
     }
     S.day = day; S.events = c.events; S.cals = c.cals; S.query = ''; S.pin = null; S.pinDur = null; S.auth = 'ok';
     const p = plan({ type: 'tpl', tpl });
-    const ev = { id: null, cal: p.calendarId, title: p.title, start: p.start, end: p.end, allDay: false, colorId: p.colorId, free: false, mine: true, pending: true, canEdit: true,
+    const ev = { id: null, cal: p.calendarId, title: p.title, start: p.start, end: p.end, allDay: false, colorId: p.colorId, free: false, mine: true, pending: true, canEdit: true, born: Date.now(),
       description: p.event.description, location: p.event.location, reminders: (tpl.reminders || []).slice() };
     c.events.push(ev);
     const when = sameDay(day, now) ? '' : ' · ' + day.toLocaleDateString([], { weekday: 'short', day: 'numeric', month: 'short' });
@@ -1070,7 +1070,7 @@ select.in{appearance:none;cursor:pointer}
       extendedProperties: { private: { ct: '1' } }
     };
     if (old.colorId) body.colorId = old.colorId;
-    const ev = Object.assign({}, old, { id: null, pending: true, mine: true, canEdit: true });
+    const ev = Object.assign({}, old, { id: null, pending: true, mine: true, canEdit: true, born: Date.now() });
     S.events.push(ev); commit(); S.noScroll = true; renderAll();
     try {
       const r = await send({ type: 'create', calendarId: old.cal, event: body });
